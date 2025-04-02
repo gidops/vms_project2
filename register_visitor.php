@@ -1,40 +1,53 @@
 <?php
+session_start();  // Start the session to access session variables
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $conn = new mysqli("localhost", "root", "", "visitor");
+    // Check if the employee is logged in
+    if (isset($_SESSION['employee_id'])) {
+        $employee_id = $_SESSION['employee_id']; // Get the logged-in employee's ID
 
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+        // Database connection
+        $conn = new mysqli("localhost", "root", "", "visitor");
+
+        // Check database connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        // Get the form data
+        $name = $_POST['name'];
+        $phone = $_POST['phone'];
+        $email = $_POST['email'];
+
+        // Handle image upload
+        $target_dir = "uploads/";
+        $target_file = $target_dir . basename($_FILES["picture"]["name"]);
+
+        // Create the upload directory if it doesn't exist
+        if (!is_dir($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+
+        // Move the uploaded file to the target directory
+        if (move_uploaded_file($_FILES["picture"]["tmp_name"], $target_file)) {
+            echo "File uploaded successfully.";
+        } else {
+            die("File upload failed. Check folder permissions.");
+        }
+
+        // Prepare and execute the SQL query to insert visitor data
+        $stmt = $conn->prepare("INSERT INTO visitors (name, phone, email, picture, employee_id) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssi", $name, $phone, $email, $target_file, $employee_id);
+        $stmt->execute();
+
+        // Optional: Send email to CSO
+        mail("cso@company.com", "New Visitor Entry", "A new visitor entry needs approval.");
+
+        echo "Entry submitted. Awaiting approval.";
+    } else {
+        // If employee is not logged in, prompt them to log in first
+        echo "You need to log in first.";
     }
-
-    $name = $_POST['name'];
-    $phone = $_POST['phone'];
-    $email = $_POST['email'];
-
-    // Handle image upload
-    $target_dir = "uploads/";
-    $target_file = $target_dir . basename($_FILES["picture"]["name"]);
-    $upload_dir = "uploads/";
-if (!is_dir($upload_dir)) {
-    mkdir($upload_dir, 0777, true); // Create the directory if it doesn't exist
-}
-
-$target_file = $upload_dir . basename($_FILES["picture"]["name"]);
-
-if (move_uploaded_file($_FILES["picture"]["tmp_name"], $target_file)) {
-    echo "File uploaded successfully.";
-} else {
-    die("File upload failed. Check folder permissions.");
-}
-
-
-    $stmt = $conn->prepare("INSERT INTO visitors (name, phone, email, picture) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $name, $phone, $email, $target_file);
-    $stmt->execute();
-    
-    // Notify the Chief Security Officer (this can be an email alert)
-    mail("cso@company.com", "New Visitor Entry", "A new visitor entry needs approval.");
-
-    echo "Entry submitted. Awaiting approval.";
 }
 ?>
 
