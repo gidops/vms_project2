@@ -38,10 +38,71 @@ if (move_uploaded_file($_FILES["picture"]["tmp_name"], $target_file)) {
 }
 ?>
 
+<style>
+    /* Style for the form container */
+    form {
+        width: 300px;
+        margin: 0 auto;
+    }
+
+    /* Make all form elements block-level for proper alignment */
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    .form-group label {
+        display: block; /* Make labels block-level */
+        font-weight: bold;
+    }
+
+    .form-group input {
+        width: 100%; /* Make input fields take full width */
+        padding: 8px;
+        margin-top: 5px;
+    }
+
+    /* Style for submit button */
+    input[type="submit"] {
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+</style>
+
 <form action="register_visitor.php" method="POST" enctype="multipart/form-data">
-    Name: <input type="text" name="name" required><br>
-    Phone: <input type="text" name="phone" required><br>
-    Email: <input type="email" name="email" required><br>
-    Picture: <input type="file" name="picture" required><br>
+    <!-- Visitor Name -->
+    <div class="form-group">
+        <label for="name">Visitor Name:</label>
+        <input type="text" name="name" id="name" required>
+    </div>
+
+    <!-- Phone -->
+    <div class="form-group">
+        <label for="phone">Phone:</label>
+        <input type="text" name="phone" id="phone" required>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required>
+    </div>
+
+    <!-- Picture -->
+    <div class="form-group">
+        <label for="picture">Picture:</label>
+        <input type="file" name="picture" id="picture" required>
+    </div>
+
+    <!-- Submit Button -->
     <input type="submit" value="Submit Entry">
 </form>
+
