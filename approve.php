@@ -52,8 +52,8 @@ if (isset($_GET['id'])) {
 
         // Send email with PHPMailer
         $mail = new PHPMailer(true);
-        $mail->SMTPDebug = 2; // Enable detailed debugging output
-        $mail->Debugoutput = 'html'; // Show output in a readable format
+       // $mail->SMTPDebug = 2; // Enable detailed debugging output
+        //$mail->Debugoutput = 'html'; // Show output in a readable format
 
         try {
             // SMTP Configuration
