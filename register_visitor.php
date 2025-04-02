@@ -107,6 +107,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
+<style>
+    h5 {text-align: center}
+</style>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -206,8 +210,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-user-plus me-2"></i>Register Visitor
+                                    <i class="fas fa-user-plus me-2"></i> Register Visitor
                                 </button>
+                            </div>
+                            <div>
+                                <a href="employee_login.php"><h5>Logout</h5></a>
                             </div>
                         </form>
                     </div>

@@ -316,7 +316,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <button type="submit" class="btn-submit">
-                <i class="fas fa-user-plus me-2"></i> Register Now
+                <i class="fas fa-user-plus me-2"></i> <a href="employee_login.php">Register Now</a>
             </button>
         </form>
 
