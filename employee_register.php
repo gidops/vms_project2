@@ -50,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!-- HTML form for employee registration -->
-<form action="folder/register_employee.php" method="POST">
+<form action="employee.register.php" method="POST">
     Name: <input type="text" name="name" required><br>
     Email: <input type="email" name="email" required><br>
     Password: <input type="password" name="password" required><br>
