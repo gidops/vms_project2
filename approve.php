@@ -151,7 +151,7 @@ if (isset($_GET['id'])) {
                             <h2 class="card-title mb-3">Approval Successful</h2>
                             <p class="card-text mb-4">Visitor has been approved and the QR code has been sent to their email address.</p>
                             <div class="d-flex justify-content-center">
-                                <a href="dashboard.php" class="btn btn-primary">
+                                <a href="cso_dashboard.php" class="btn btn-primary">
                                     <i class="fas fa-arrow-left me-2"></i> Return to Dashboard
                                 </a>
                             </div>
@@ -201,7 +201,7 @@ if (isset($_GET['id'])) {
                             <h2 class="card-title mb-3">Approval Error</h2>
                             <p class="card-text mb-4">Email sending failed: ' . htmlspecialchars($mail->ErrorInfo) . '</p>
                             <div class="d-flex justify-content-center">
-                                <a href="dashboard.php" class="btn btn-primary">
+                                <a href="cso_dashboard.php" class="btn btn-primary">
                                     <i class="fas fa-arrow-left me-2"></i> Return to Dashboard
                                 </a>
                             </div>
@@ -230,7 +230,7 @@ if (isset($_GET['id'])) {
                 <i class="fas fa-exclamation-triangle me-2"></i> Visitor not found.
             </div>
             <div class="m-4">
-                <a href="dashboard.php" class="btn btn-primary">
+                <a href="cso_dashboard.php" class="btn btn-primary">
                     <i class="fas fa-arrow-left me-2"></i> Return to Dashboard
                 </a>
             </div>
@@ -260,7 +260,7 @@ if (isset($_GET['id'])) {
             <i class="fas fa-exclamation-triangle me-2"></i> No visitor ID provided.
         </div>
         <div class="m-4">
-            <a href="dashboard.php" class="btn btn-primary">
+            <a href="cso_dashboard.php" class="btn btn-primary">
                 <i class="fas fa-arrow-left me-2"></i> Return to Dashboard
             </a>
         </div>

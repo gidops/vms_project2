@@ -35,7 +35,7 @@ if ($conn->connect_error) {
                         <i class='fas fa-database fa-5x text-danger mb-4'></i>
                         <h2 class='card-title'>Database Connection Failed</h2>
                         <p class='card-text'>Connection failed: " . htmlspecialchars($conn->connect_error) . "</p>
-                        <a href='dashboard.php' class='btn btn-primary mt-3'>
+                        <a href='cso_dashboard.php' class='btn btn-primary mt-3'>
                             <i class='fas fa-arrow-left me-2'></i> Return to Dashboard
                         </a>
                     </div>
@@ -88,7 +88,7 @@ if (isset($_GET['id'])) {
                         <h2 class='card-title'>Visitor Denied</h2>
                         <p class='card-text'>The visitor entry has been successfully denied.</p>
                         <div class='d-grid gap-2 d-md-flex justify-content-md-center mt-4'>
-                            <a href='dashboard.php' class='btn btn-primary me-md-2'>
+                            <a href='cso_dashboard.php' class='btn btn-primary me-md-2'>
                                 <i class='fas fa-arrow-left me-2'></i> Return to Dashboard
                             </a>
                             <a href='pending_visitors.php' class='btn btn-outline-secondary'>
@@ -119,7 +119,7 @@ if (isset($_GET['id'])) {
                 <i class='fas fa-exclamation-triangle me-2'></i> Error denying visitor: " . htmlspecialchars($conn->error) . "
             </div>
             <div class='m-4'>
-                <a href='dashboard.php' class='btn btn-primary'>
+                <a href='cso_dashboard.php' class='btn btn-primary'>
                     <i class='fas fa-arrow-left me-2'></i> Return to Dashboard
                 </a>
             </div>
@@ -145,7 +145,7 @@ if (isset($_GET['id'])) {
             <i class='fas fa-exclamation-triangle me-2'></i> No visitor ID provided.
         </div>
         <div class='m-4'>
-            <a href='dashboard.php' class='btn btn-primary'>
+            <a href='cso_dashboard.php' class='btn btn-primary'>
                 <i class='fas fa-arrow-left me-2'></i> Return to Dashboard
             </a>
         </div>

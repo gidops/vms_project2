@@ -26,9 +26,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->fetch() && password_verify($password, $hashed_password)) {
         session_start();
         $_SESSION['employee_id'] = $id; // Store employee ID in session
-        echo "Login successful!";
+        
     } else {
-        echo "Invalid credentials.";
+        
     }
 }
 ?>
@@ -186,7 +186,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="forgot_password.php">Forgot password?</a>
             </div>
         </div>
-        <button type="submit" class="login-btn">Login</button>
+        <button type="submit" class="login-btn"><a href="register_visitor.php">Login</a></button>
     </form>
     <div class="register-link">
         Don't have an account? <a href="employee_register.php">Register here</a>
