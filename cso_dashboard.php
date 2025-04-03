@@ -55,7 +55,7 @@ $result = $conn->query("SELECT * FROM visitors WHERE status='pending'");
                         </span>
                     </h1>
                     <div>
-                        <button class="btn btn-sm btn-outline-secondary">
+                        <button id="refreshBtn" class="btn btn-sm btn-outline-secondary">
                             <i class="fas fa-sync-alt me-1"></i> Refresh
                         </button>
                     </div>
@@ -124,6 +124,21 @@ $result = $conn->query("SELECT * FROM visitors WHERE status='pending'");
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Add click event listener to the refresh button
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            // Show loading spinner on the button
+            const icon = this.querySelector('i');
+            icon.classList.remove('fa-sync-alt');
+            icon.classList.add('fa-spinner', 'fa-spin');
+            
+            // Reload the page after a short delay to show the spinner
+            setTimeout(() => {
+                location.reload();
+            }, 300);
+        });
+    </script>
 </body>
 </html>
 <?php
