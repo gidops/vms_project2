@@ -38,12 +38,15 @@ if (isset($_GET['id'])) {
     $stmt = $conn->prepare("UPDATE visitors SET status='approved', qr_code=? WHERE id=?");
     $stmt->bind_param("si", $qr_code, $id);
     $stmt->execute();
+    //var_dump($id);
+    
 
     // Retrieve visitor details
-    $stmt = $conn->prepare("SELECT name, email FROM visitors WHERE id=?");
+    $stmt = $conn->prepare("SELECT visitors.name, visitors.email, employees.email AS host_email FROM visitors LEFT JOIN employees ON visitors.host_id = employees.id WHERE visitors.id=?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
+    
 
     if ($result->num_rows > 0) {
         $visitor = $result->fetch_assoc();
@@ -114,6 +117,47 @@ if (isset($_GET['id'])) {
             // Send Email
             $mail->send();
             
+            if (!empty($visitor['host_email'])) {
+                $host_email = $visitor['host_email'];
+    
+                $host_mail = new PHPMailer(true);
+            try {
+                // SMTP Configuration
+                $host_mail->isSMTP();
+                $host_mail->Host = 'smtp.gmail.com';
+                $host_mail->SMTPAuth = true;
+                $host_mail->Username = 'ugorjigideon2@gmail.com';
+                $host_mail->Password = 'vveehxmeldoknxtg';
+                $host_mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $host_mail->Port = 587;
+
+                // Email Setup
+                $host_mail->setFrom('ugorjigideon2@gmail.com', 'VMS System');
+                $host_mail->addAddress($host_email);
+                $host_mail->Subject = "Your Visitor's Appointment Has Been Approved";
+                $host_mail->isHTML(true);
+                $host_mail->Body = "
+                    <html>
+                    <body>
+                        <p>Dear Host,</p>
+                        <p>Your visitor, <strong>$visitor_name</strong>, has been approved.</p>
+                        <p>They will be arriving with the following QR code:</p>
+                        <img src='cid:qr_code' alt='QR Code' style='width: 200px; height: 200px;'>
+                        <p>Please be prepared for their visit.</p>
+                    </body>
+                    </html>
+        ";
+
+                // Attach the same QR code
+                $host_mail->addEmbeddedImage($qr_code_path, 'qr_code');
+
+                // Send the email
+                $host_mail->send();
+        } catch (Exception $e) {
+        error_log("Host email sending failed: " . $host_mail->ErrorInfo);
+    }
+}
+
             // Display success message with Bootstrap styling
             echo '
             <!DOCTYPE html>

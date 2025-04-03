@@ -65,8 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Move uploaded file
         if (move_uploaded_file($_FILES["picture"]["tmp_name"], $target_file)) {
             // Insert into database
-            $stmt = $conn->prepare("INSERT INTO visitors (name, phone, email, picture, employee_id) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssssi", $name, $phone, $email, $target_file, $employee_id);
+            $stmt = $conn->prepare("INSERT INTO visitors (name, phone, email, picture, employee_id,host_id) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssii", $name, $phone, $email, $target_file, $employee_id,$employee_id);
             
             if ($stmt->execute()) {
                 // Send email to CSO (placeholder - implement your email function)
