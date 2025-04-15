@@ -71,33 +71,95 @@
       width: 60px;
       margin-bottom: 1rem;
     }
+    
+    .visitor-info {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: #f8f9fa;
+      border-radius: 0.5rem;
+    }
   </style>
 </head>
 <body>
- <!-- #region -->
   <div class="scanner-container">
     <img src="assets/logo-green-yellow.png" alt="AATC Logo" class="logo">
     <div class="scanner-title">Scan Visitor QR Code</div>
     <div id="reader"></div>
     <div id="result">Waiting for scan...</div>
-    <button id="checkinBtn" class="btn btn-success mt-3" style="display: none;" onclick="checkInVisitor()">Check-In Visitor</button>
+    <div id="visitorInfo" class="visitor-info" style="display: none;"></div>
+    <button id="checkinBtn" class="btn btn-success mt-3" style="display: none;">Check-In Visitor</button>
   </div>
 
   <div class="mt-3 text-center">
-  <button id="notifyBtn" class="btn btn-primary" style="display: none;">Notify Host</button>
-</div>
+    <button id="notifyBtn" class="btn btn-primary" style="display: none;">Notify Host</button>
+  </div>
 
-
-  
   <div class="footer">
     &copy; <?php echo date("Y"); ?> AATC Visitor Management System
   </div>
 
   <script>
+      // Paste the JavaScript code here
+      function notifyEmployee() {
+        if (!currentVisitorData) return;
+        
+        const notifyBtn = document.getElementById("notifyBtn");
+        notifyBtn.disabled = true;
+        notifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+        
+        fetch("notify_employee.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                visitor_id: currentVisitorData.visitor_id,
+                employee_id: currentVisitorData.employee_id
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            const resultDiv = document.getElementById("result");
+            if (data.success) {
+                notifyBtn.innerHTML = '<i class="bi bi-check-circle"></i> Notified';
+                resultDiv.innerHTML += `
+                    <div class="alert alert-success mt-3">
+                        <i class="bi bi-envelope-check"></i> 
+                        Notification sent to ${data.employee} (${data.email})
+                    </div>`;
+            } else {
+                notifyBtn.disabled = false;
+                notifyBtn.textContent = "Notify Again";
+                resultDiv.innerHTML += `
+                    <div class="alert alert-danger mt-3">
+                        <i class="bi bi-envelope-x"></i> 
+                        ${data.message}
+                    </div>`;
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            notifyBtn.disabled = false;
+            notifyBtn.textContent = "Notify Employee";
+            document.getElementById("result").innerHTML += `
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    Connection error - please try again
+                </div>`;
+        });
+    }
+    let currentVisitorData = null;
+    
     function onScanSuccess(decodedText, decodedResult) {
-      document.getElementById("result").innerHTML = "Scanned: " + decodedText;
-      document.getElementById("checkinBtn").style.display = "none";
+      // Stop scanning after successful scan
+      html5QrcodeScanner.clear().then(() => {
+        console.log("QR Scanner stopped");
+      }).catch(err => {
+        console.error("Failed to stop scanner", err);
+      });
 
+      document.getElementById("result").innerHTML = "Processing QR code...";
+      
       fetch("verify_qr.php", {
         method: "POST",
         headers: {
@@ -105,22 +167,90 @@
         },
         body: "qr_data=" + encodeURIComponent(decodedText),
       })
-      .then(response => response.text())
+      .then(response => response.json())
       .then(data => {
-        const parts = data.split("|");
-        const message = parts[0];
-        const status = parts[1];
-
-        document.getElementById("result").innerHTML = message;
-
-        if (status === "FOUND") {
+        if (data.status === "FOUND") {
+          currentVisitorData = data;
+          displayVisitorInfo(data);
           document.getElementById("checkinBtn").style.display = "inline-block";
+          document.getElementById("notifyBtn").style.display = "inline-block";
+        } else {
+          document.getElementById("result").innerHTML = data.message;
+          document.getElementById("visitorInfo").style.display = "none";
+          document.getElementById("checkinBtn").style.display = "none";
+          document.getElementById("notifyBtn").style.display = "none";
         }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        document.getElementById("result").innerHTML = "Error processing request";
       });
     }
 
+    function displayVisitorInfo(data) {
+      const visitorInfoDiv = document.getElementById("visitorInfo");
+      visitorInfoDiv.style.display = "block";
+      visitorInfoDiv.innerHTML = `
+        <h5>Visitor Information</h5>
+        <p><strong>Name:</strong> ${data.visitor_name}</p>
+        <p><strong>Company:</strong> ${data.company}</p>
+        <p><strong>Host:</strong> ${data.host_name}</p>
+        <p><strong>Purpose:</strong> ${data.purpose}</p>
+      `;
+      document.getElementById("result").innerHTML = "Visitor verified successfully!";
+    }
+
     function checkInVisitor() {
-      alert("Visitor Checked In! (You can implement check-in logic here)");
+      if (!currentVisitorData) return;
+      
+      fetch("checkin_visitor.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          visitor_id: currentVisitorData.visitor_id,
+          qr_data: currentVisitorData.qr_data
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        if (data.success) {
+          document.getElementById("checkinBtn").style.display = "none";
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("Error during check-in");
+      });
+    }
+
+    function notifyHost() {
+      if (!currentVisitorData) return;
+      
+      fetch("notify_host.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          visitor_id: currentVisitorData.visitor_id,
+          host_id: currentVisitorData.host_id
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        if (data.success) {
+          document.getElementById("notifyBtn").disabled = true;
+          document.getElementById("notifyBtn").textContent = "Host Notified";
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("Error notifying host");
+      });
     }
 
     const html5QrcodeScanner = new Html5QrcodeScanner("reader", {
@@ -129,8 +259,10 @@
     });
 
     html5QrcodeScanner.render(onScanSuccess);
+    
+    // Add event listeners
+    document.getElementById("checkinBtn").addEventListener("click", checkInVisitor);
+    document.getElementById("notifyBtn").addEventListener("click", notifyHost);
   </script>
-
 </body>
 </html>
-

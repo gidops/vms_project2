@@ -1,62 +1,49 @@
 <?php
-// checkin_visitor.php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-require 'PHPMailer/src/Exception.php';
-require 'PHPMailer/src/PHPMailer.php';
-require 'PHPMailer/src/SMTP.php';
+require 'db_connection.php';
+header('Content-Type: application/json');
 
-
-
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['qr_data'])) {
-    $qrData = $_POST['qr_data'];
-
-    // DB connection
-    $conn = new mysqli("localhost", "root", "", "visitor");
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+try {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if (!isset($data['visitor_id']) || !isset($data['qr_data'])) {
+        throw new Exception('Missing required fields');
     }
 
-    // Look up visitor by QR data (assumed to be email or unique token)
-    $stmt = $conn->prepare("SELECT * FROM visitors WHERE email = ? AND status = 'approved'");
-    $stmt->bind_param("s", $qrData);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($row = $result->fetch_assoc()) {
-        // Update status to 'checked_in'
-        $update = $conn->prepare("UPDATE visitors SET status = 'checked_in' WHERE email = ?");
-        $update->bind_param("s", $qrData);
-        $update->execute();
-
-        // Send email to host
-        $mail = new PHPMailer(true);
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'ugorjigideon2@gmail.com';
-            $mail->Password = 'tzfitrlpqegfcmag';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port = 465;
-
-
-            $mail->setFrom('your_email@example.com', 'Visitor Management System');
-            $mail->addAddress($row['host_email'], $row['host_name']);
-            $mail->Subject = 'Visitor Check-In';
-            $mail->Body = "Your visitor " . $row['name'] . " has been checked in.";
-
-            $mail->send();
-        } catch (Exception $e) {
-            error_log("Email error: " . $mail->ErrorInfo);
+    $query = "UPDATE visitors SET 
+              check_in_time = NOW(),
+              arrival_time = TIME(NOW()),
+              arrival_date = CURDATE(),
+              status = 'checked_in',
+              visit_date = CURDATE()
+              WHERE id = ? 
+              AND qr_code = ? 
+              AND status = 'approved'";
+    
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("is", $data['visitor_id'], $data['qr_data']);
+    
+    if ($stmt->execute()) {
+        if ($stmt->affected_rows > 0) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Visitor checked in successfully',
+                'check_in_time' => date('Y-m-d H:i:s'),
+                'arrival_time' => date('H:i:s')
+            ]);
+        } else {
+            // No rows affected means either:
+            // - QR code didn't match
+            // - Status wasn't 'approved'
+            // - Already checked in
+            throw new Exception('Visitor not approved or already checked in');
         }
-
-        echo "Visitor " . htmlspecialchars($row['name']) . " checked in and host notified.";
     } else {
-        echo "Visitor record not found or already checked in.";
+        throw new Exception('Database update failed');
     }
-
-    $stmt->close();
-    $conn->close();
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error: ' . $e->getMessage()
+    ]);
 }
 ?>

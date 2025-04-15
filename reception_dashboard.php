@@ -65,17 +65,10 @@ if ($search_term !== "") {
                             AND (name LIKE '$like_search' OR phone LIKE '$like_search' OR host_name LIKE '$like_search')");
     $total_authenticated = $result->fetch_assoc()['count'];
 } else {
-    // Original logic for approved guests
-    $approved_guests = [];
-    $sql_approved = "SELECT id, name, phone, email, host_name, visit_date FROM visitors WHERE status = 'approved' LIMIT $start, $per_page";
-    $result_approved = $conn->query($sql_approved);
-    while ($row = $result_approved->fetch_assoc()) {
-        $approved_guests[] = $row;
-    }
 
     // Original logic for authenticated guests
     $authenticated_guests = [];
-    $sql_authenticated = "SELECT id, name, phone, email, host_name, visit_date, check_in_time FROM visitors WHERE status = 'authenticated' LIMIT $start, $per_page";
+    $sql_authenticated = "SELECT id, name, phone, email, host_name, visit_date, check_in_time FROM visitors WHERE status = 'checked_in' LIMIT $start, $per_page";
     $result_authenticated = $conn->query($sql_authenticated);
     while ($row = $result_authenticated->fetch_assoc()) {
         $authenticated_guests[] = $row;
@@ -93,7 +86,7 @@ while ($row = $result_approved->fetch_assoc()) {
 
 // Fetch authenticated (scanned-in) guests with pagination
 $authenticated_guests = [];
-$sql_authenticated = "SELECT id, name, phone, email, host_name, visit_date, check_in_time FROM visitors WHERE status = 'authenticated' LIMIT $start, $per_page";
+$sql_authenticated = "SELECT id, name, phone, email, host_name, visit_date, check_in_time FROM visitors WHERE status = 'checked_in' LIMIT $start, $per_page";
 $result_authenticated = $conn->query($sql_authenticated);
 while ($row = $result_authenticated->fetch_assoc()) {
     $authenticated_guests[] = $row;
@@ -277,7 +270,7 @@ $conn->close();
     </div>
 
     <!-- Authenticated Guests -->
-    <h4 class="section-title">Authenticated Visitors</h4>
+    <h4 class="section-title">Checked-In Visitors</h4>
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <thead>
