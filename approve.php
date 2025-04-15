@@ -62,9 +62,9 @@ if (isset($_GET['id'])) {
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'ugorjigideon2@gmail.com';
-            $mail->Password = 'vveehxmeldoknxtg';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+            $mail->Password = 'ahvnysmiwyjiervi';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port = 465;
 
             // Email Setup
             $mail->setFrom('ugorjigideon2@gmail.com', 'VMS System');
@@ -128,8 +128,8 @@ if (isset($_GET['id'])) {
                 $host_mail->SMTPAuth = true;
                 $host_mail->Username = 'ugorjigideon2@gmail.com';
                 $host_mail->Password = 'vveehxmeldoknxtg';
-                $host_mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $host_mail->Port = 587;
+                $host_mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                $host_mail->Port = 465;
 
                 // Email Setup
                 $host_mail->setFrom('ugorjigideon2@gmail.com', 'VMS System');

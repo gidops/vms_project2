@@ -3,6 +3,9 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// Start session at the beginning
+session_start();
+
 // Database connection
 $conn = new mysqli("localhost", "root", "", "visitor");
 
@@ -10,6 +13,10 @@ $conn = new mysqli("localhost", "root", "", "visitor");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
+// Initialize message variables
+$message = '';
+$message_class = '';
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -24,172 +31,209 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_result($id, $hashed_password);
 
     if ($stmt->fetch() && password_verify($password, $hashed_password)) {
-        session_start();
         $_SESSION['employee_id'] = $id; // Store employee ID in session
-        
+        header("Location: register_visitor.php"); // Redirect to desired page
+        exit(); // Important to prevent further execution
     } else {
-        
+        $message = "Invalid credentials.";
+        $message_class = "error";
     }
+
+    $stmt->close();
 }
+$conn->close();
 ?>
-<!-- Simple form for employee login -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Please Login</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
 
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #e0f7f4);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
 
-<style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f5f7fa;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        color: #333;
-    }
+        .logo {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
 
-    .login-container {
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        padding: 30px;
-        width: 100%;
-        max-width: 400px;
-        transition: transform 0.3s ease;
-    }
+        .logo img {
+            width: 150px;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
 
-    .login-container:hover {
-        transform: translateY(-5px);
-    }
+        .logo img:hover {
+            transform: scale(1.05);
+        }
 
-    h2 {
-        text-align: center;
-        color: #2c3e50;
-        margin-bottom: 25px;
-        font-weight: 600;
-    }
+        .login-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            transition: transform 0.3s ease;
+            margin-bottom: 40px;
+        }
 
-    .form-group {
-        margin-bottom: 20px;
-    }
+        .login-container:hover {
+            transform: translateY(-5px);
+        }
 
-    label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 500;
-        color: #555;
-    }
+        h2 {
+            text-align: center;
+            color: #007570;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
 
-    input[type="email"],
-    input[type="password"] {
-        width: 100%;
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 16px;
-        transition: border 0.3s;
-        box-sizing: border-box;
-    }
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-    input[type="email"]:focus,
-    input[type="password"]:focus {
-        border-color: #3498db;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-    }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
 
-    .login-btn {
-        background-color: #3498db;
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        width: 100%;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+            box-sizing: border-box;
+        }
 
-    .login-btn:hover {
-        background-color: #2980b9;
-    }
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #07AF8B;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(7, 175, 139, 0.2);
+        }
 
-    .message {
-        text-align: center;
-        margin-top: 20px;
-        padding: 10px;
-        border-radius: 5px;
-    }
+        .login-btn {
+            background-color: #07AF8B;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-    .error {
-        background-color: #ffebee;
-        color: #c62828;
-    }
+        .login-btn:hover {
+            background-color: #007570;
+        }
 
-    .success {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-    }
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
 
-    .register-link {
-        text-align: center;
-        margin-top: 20px;
-        font-size: 14px;
-    }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
 
-    .register-link a {
-        color: #3498db;
-        text-decoration: none;
-    }
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
 
-    .register-link a:hover {
-        text-decoration: underline;
-    }
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
 
-    .forgot-password {
-        text-align: right;
-        margin-top: -15px;
-        margin-bottom: 20px;
-        font-size: 13px;
-    }
+        .register-link a {
+            color: #07AF8B;
+            text-decoration: none;
+        }
 
-    .forgot-password a {
-        color: #7f8c8d;
-        text-decoration: none;
-    }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
 
-    .forgot-password a:hover {
-        text-decoration: underline;
-        color: #3498db;
-    }
-</style>
+        .forgot-password {
+            text-align: right;
+            margin-top: -15px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
 
-<div class="login-container">
-    <h2>Employee Login</h2>
-    <?php if ($_SERVER["REQUEST_METHOD"] == "POST"): ?>
-        <div class="message <?php echo isset($_SESSION['employee_id']) ? 'success' : 'error'; ?>">
-            <?php echo isset($_SESSION['employee_id']) ? "Login successful!" : "Invalid credentials."; ?>
-        </div>
-    <?php endif; ?>
-    <form method="POST" action="employee_login.php">
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required placeholder="Enter your email">
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required placeholder="Enter your password">
-            
-        </div>
-        <div class="forgot-password">
+        .forgot-password a {
+            color: #777;
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+            color: #FFCA00;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <a href="landing_page.php">
+            <img src="assets/logo-green-yellow.png" alt="Company Logo">
+        </a>
+    </div>
+
+    <div class="login-container">
+        <h2>Welcome Please Login</h2>
+        <?php if (!empty($message)): ?>
+            <div class="message <?php echo $message_class; ?>">
+                <?php echo $message; ?>
+            </div>
+        <?php endif; ?>
+        <form method="POST" action="employee_login.php">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+            <div class="forgot-password">
                 <a href="password_reset.html">Forgot password?</a>
             </div>
-        <button type="submit" class="login-btn"><a href="register_visitor.php">Login</a></button>
-    </form>
-    <div class="register-link">
-        Don't have an account? <a href="employee_register.php">Register here</a>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <div class="register-link">
+            Don't have an account? <a href="employee_register.php">Register here</a>
+        </div>
     </div>
-</div>
+</body>
+</html>

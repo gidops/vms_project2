@@ -9,17 +9,17 @@ session_start();
 // Database connection
 $conn = new mysqli("localhost", "root", "", "visitor");
 
-// Check the connection
+// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Check if the form is submitted
+// Check form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $stmt = $conn->prepare("SELECT id, password_hash FROM cso WHERE email=?");
+    $stmt = $conn->prepare("SELECT id, password_hash FROM gate WHERE email=?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
@@ -29,9 +29,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->fetch();
         
         if (password_verify($password, $password_hash)) {
-            session_start();
-            $_SESSION['cso_id'] = $id; // Store CSO ID in session
-            header("Location: cso_dashboard.php"); // Redirect to dashboard after successful login
+            $_SESSION['gate_id'] = $id; // Store Gate Officer ID in session
+            header("Location: gate_dashboard.php"); // Redirect to dashboard
             exit();
         } else {
             echo "<div class='alert alert-danger'>Invalid password.</div>";
@@ -42,15 +41,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->close();
 }    
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSO Login</title>
-    <style>
-        body {
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gate Login</title>
+  <style>
+ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f5f7fa;
     margin: 0;
@@ -78,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 h2 {
     text-align: center;
-    color: #007570;
+    color: #007570; /* Your specified green shade */
     margin-bottom: 25px;
     font-weight: 600;
 }
@@ -180,16 +178,14 @@ input[type="password"]:focus {
     color: #FFCA00;
 }
 
-    </style>
+
+  </style>
 </head>
 <body>
 
 <div class="login-container">
-    <h2>Security Manager Login</h2>
-    <?php if (!empty($error)): ?>
-        <div class="message error"><?php echo $error; ?></div>
-    <?php endif; ?>
-    <form method="POST" action="cso_login.php">
+    <h2>Gate Operative Login</h2>
+    <form method="POST" action="gate_login.php">
         <div class="form-group">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" required placeholder="Enter your email">
@@ -199,13 +195,13 @@ input[type="password"]:focus {
             <input type="password" id="password" name="password" required placeholder="Enter your password">
         </div>
         <div class="forgot-password">
-            <a href="password_reset.html">Forgot password?</a>
+            <a href="gate_password_reset.html">Forgot password?</a>
         </div>
         <button type="submit" class="login-btn">Login</button>
     </form>
-    <div class="register-link">
-        Don't have an account? <a href="cso_register.php">Register here</a>
-    </div>
+   <!-- <div class="register-link">
+        Don't have an account? <a href="gate_register.php">Register here</a>
+    </div> -->
 </div>
 
 </body>
