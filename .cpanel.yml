@@ -1,0 +1,7 @@
+---
+deployment:
+  tasks:
+    # where to copy the files
+    - export DEPLOYPATH=/home/aatcabuj/repositories/vms_project2
+    # sync project → live directory
+    - /bin/rsync -av --delete ./ $DEPLOYPATH
